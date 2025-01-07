@@ -13,6 +13,7 @@ type Config struct {
 		Password string
 		Name     string
 	}
+	Secret string
 }
 
 func LoadConfig() (*Config, error) {

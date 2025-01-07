@@ -2,23 +2,30 @@ package main
 
 import (
 	InitRouters "FileStorage/cmd/api/init"
+	conf "FileStorage/config"
 	"FileStorage/database/connection"
 	"FileStorage/database/migrations"
-	models "FileStorage/database/models/user"
+	tokenModels "FileStorage/database/models/token"
+	userModels "FileStorage/database/models/user"
 	"github.com/gin-gonic/gin"
 	"log"
 )
 
 func main() {
-	db, err := connection.Connect()
+	config, err := conf.LoadConfig()
+	if err != nil {
+		log.Fatalf("could not load config: %v", err)
+	}
+
+	db, err := connection.Connect(config)
 	if err != nil {
 		log.Fatalf("could not connect to database: %v", err)
 	}
 
-	migrations.Migrate(db, &models.User{})
+	migrations.Migrate(db, &userModels.User{}, &tokenModels.UserToken{})
 
 	r := gin.Default()
-	InitRouters.Run(r, db)
+	InitRouters.Run(r, db, config)
 
 	r.Run(":8080")
 	log.Printf("server started at localhost:8080")

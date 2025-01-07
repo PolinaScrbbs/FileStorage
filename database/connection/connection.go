@@ -25,12 +25,7 @@ func getConnStr(config conf.Config) string {
 	return connStr
 }
 
-func Connect() (*gorm.DB, error) {
-	config, err := conf.LoadConfig()
-	if err != nil {
-		return nil, fmt.Errorf("error loading config: %w", err)
-	}
-
+func Connect(config *conf.Config) (*gorm.DB, error) {
 	connStr := getConnStr(*config)
 
 	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
