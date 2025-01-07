@@ -16,4 +16,6 @@ func Migrate(db *gorm.DB, models ...interface{}) {
 		modelName := reflect.TypeOf(model).Elem().Name()
 		log.Printf("Migration applied for model: %s", modelName)
 	}
+
+	log.Printf("All migrations applied")
 }

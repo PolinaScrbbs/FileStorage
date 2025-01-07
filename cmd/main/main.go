@@ -1,9 +1,11 @@
 package main
 
 import (
+	InitRouters "FileStorage/cmd/api/init"
 	"FileStorage/database/connection"
 	"FileStorage/database/migrations"
 	models "FileStorage/database/models/user"
+	"github.com/gin-gonic/gin"
 	"log"
 )
 
@@ -14,4 +16,10 @@ func main() {
 	}
 
 	migrations.Migrate(db, &models.User{})
+
+	r := gin.Default()
+	InitRouters.Run(r, db)
+
+	r.Run(":8080")
+	log.Printf("server started at localhost:8080")
 }
