@@ -2,14 +2,16 @@ package main
 
 import (
 	"FileStorage/database/connection"
-	"context"
+	"FileStorage/database/migrations"
+	models "FileStorage/database/models/user"
 	"log"
 )
 
 func main() {
-	conn, err := connection.Connect()
+	db, err := connection.Connect()
 	if err != nil {
-		log.Fatalf("connection error: %v", err)
+		log.Fatalf("could not connect to database: %v", err)
 	}
-	defer conn.Close(context.Background())
+
+	migrations.Migrate(db, &models.User{})
 }

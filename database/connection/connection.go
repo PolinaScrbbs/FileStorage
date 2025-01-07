@@ -2,11 +2,15 @@ package connection
 
 import (
 	conf "FileStorage/config"
-	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"log"
 )
+
+type Database struct {
+	DB *gorm.DB
+}
 
 func getConnStr(config conf.Config) string {
 	connStr := fmt.Sprintf(
@@ -21,7 +25,7 @@ func getConnStr(config conf.Config) string {
 	return connStr
 }
 
-func Connect() (*pgx.Conn, error) {
+func Connect() (*gorm.DB, error) {
 	config, err := conf.LoadConfig()
 	if err != nil {
 		return nil, fmt.Errorf("error loading config: %w", err)
@@ -29,12 +33,12 @@ func Connect() (*pgx.Conn, error) {
 
 	connStr := getConnStr(*config)
 
-	conn, err := pgx.Connect(context.Background(), connStr)
+	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("error connecting to database: %w", err)
 	}
 
 	log.Printf("connected to database: %s", config.Database.Name)
 
-	return conn, nil
+	return db, nil
 }
