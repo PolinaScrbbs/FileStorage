@@ -66,7 +66,6 @@ func Register(db *gorm.DB) gin.HandlerFunc {
 
 func Login(db *gorm.DB, conf *config.Config) gin.HandlerFunc {
 	op := "router.Login"
-	secretBytes := []byte(conf.Secret)
 
 	return func(c *gin.Context) {
 		var login userSchemes.UserRequest
@@ -99,7 +98,7 @@ func Login(db *gorm.DB, conf *config.Config) gin.HandlerFunc {
 
 		if err := db.Where("user_id = ?", existingUser.ID).First(&existingToken).Error; err == nil {
 
-			parsedToken, err := utils.ParseJWT(existingToken.Token, secretBytes)
+			parsedToken, err := utils.ParseJWT(existingToken.Token, conf.Secret)
 			if err != nil {
 				c.JSON(http.StatusUnauthorized, gin.H{
 					"error": "Failed to parse token",
@@ -124,7 +123,7 @@ func Login(db *gorm.DB, conf *config.Config) gin.HandlerFunc {
 			return
 		}
 
-		tokenString, err := utils.GenerateJWT(existingUser.ID, secretBytes)
+		tokenString, err := utils.GenerateJWT(existingUser.ID, conf.Secret)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "Failed to generate token",
@@ -152,5 +151,37 @@ func Login(db *gorm.DB, conf *config.Config) gin.HandlerFunc {
 		})
 
 		log.Printf("%s: user %s logged in successfully", op, login.Username)
+	}
+}
+
+func Me(db *gorm.DB) gin.HandlerFunc {
+	op := "router.Me"
+
+	return func(c *gin.Context) {
+		userID, exists := c.Get("user_id")
+		if !exists {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Unauthorized",
+			})
+			log.Printf("%s: unauthorized", op)
+			return
+		}
+
+		var user userModels.User
+		if err := db.Where("id = ?", userID).First(&user).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "User not found",
+			})
+			log.Printf("%s: user not found", op)
+		}
+
+		userResponse := userSchemes.UserResponse{
+			ID:        user.ID,
+			Username:  user.Username,
+			CreatedAt: user.CreatedAt.Format("15:04 02.01.2006"),
+		}
+
+		c.JSON(http.StatusOK, userResponse)
+		log.Printf("%s: user %s retrieved successfully", op, user.Username)
 	}
 }

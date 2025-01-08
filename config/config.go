@@ -13,7 +13,7 @@ type Config struct {
 		Password string
 		Name     string
 	}
-	Secret string
+	Secret []byte `map structure:"secret"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -25,11 +25,25 @@ func LoadConfig() (*Config, error) {
 		return nil, fmt.Errorf("error reading config file: %w", err)
 	}
 
-	var config Config
+	var rawConfig struct {
+		Database struct {
+			Host     string
+			Port     int32
+			User     string
+			Password string
+			Name     string
+		}
+		Secret string `map structure:"secret"`
+	}
 
-	if err := viper.Unmarshal(&config); err != nil {
+	if err := viper.Unmarshal(&rawConfig); err != nil {
 		return nil, fmt.Errorf("error unmarshalling config: %w", err)
 	}
 
-	return &config, nil
+	config := &Config{
+		Database: rawConfig.Database,
+		Secret:   []byte(rawConfig.Secret),
+	}
+
+	return config, nil
 }
