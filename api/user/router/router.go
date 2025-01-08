@@ -158,21 +158,10 @@ func Me(db *gorm.DB) gin.HandlerFunc {
 	op := "router.Me"
 
 	return func(c *gin.Context) {
-		userID, exists := c.Get("user_id")
-		if !exists {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Unauthorized",
-			})
-			log.Printf("%s: unauthorized", op)
+		user, status, err := utils.GetCurrentUser(db, c)
+		if err != nil {
+			c.JSON(status, gin.H{"error": err.Error()})
 			return
-		}
-
-		var user userModels.User
-		if err := db.Where("id = ?", userID).First(&user).Error; err != nil {
-			c.JSON(http.StatusNotFound, gin.H{
-				"error": "User not found",
-			})
-			log.Printf("%s: user not found", op)
 		}
 
 		userResponse := userSchemes.UserResponse{

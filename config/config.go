@@ -13,7 +13,8 @@ type Config struct {
 		Password string
 		Name     string
 	}
-	Secret []byte `map structure:"secret"`
+	Secret         []byte `map structure:"secret"`
+	Base_Save_Path string `map structure:"base_save_path"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -33,7 +34,8 @@ func LoadConfig() (*Config, error) {
 			Password string
 			Name     string
 		}
-		Secret string `map structure:"secret"`
+		Secret         string `map structure:"secret"`
+		Base_Save_Path string `map structure:"base_save_path"`
 	}
 
 	if err := viper.Unmarshal(&rawConfig); err != nil {
@@ -41,8 +43,9 @@ func LoadConfig() (*Config, error) {
 	}
 
 	config := &Config{
-		Database: rawConfig.Database,
-		Secret:   []byte(rawConfig.Secret),
+		Database:       rawConfig.Database,
+		Secret:         []byte(rawConfig.Secret),
+		Base_Save_Path: rawConfig.Base_Save_Path,
 	}
 
 	return config, nil

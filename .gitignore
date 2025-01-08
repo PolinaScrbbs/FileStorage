@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/go,git,goland,goland+all,database,sam+config
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,git,goland,goland+all,database,sam+config
 
+media
+
 ### Database ###
 *.accdb
 *.db

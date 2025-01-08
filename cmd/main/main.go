@@ -5,6 +5,7 @@ import (
 	conf "FileStorage/config"
 	"FileStorage/database/connection"
 	"FileStorage/database/migrations"
+	fileModels "FileStorage/database/models/file"
 	tokenModels "FileStorage/database/models/token"
 	userModels "FileStorage/database/models/user"
 	"github.com/gin-gonic/gin"
@@ -22,7 +23,7 @@ func main() {
 		log.Fatalf("could not connect to database: %v", err)
 	}
 
-	migrations.Migrate(db, &userModels.User{}, &tokenModels.UserToken{})
+	migrations.Migrate(db, &userModels.User{}, &tokenModels.UserToken{}, &fileModels.File{})
 
 	r := gin.Default()
 	InitRouters.Run(r, db, config)
